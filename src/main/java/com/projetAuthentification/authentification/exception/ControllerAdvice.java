@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class ControllerAdvice {
 
     @ExceptionHandler(InvalidInputException.class)
     public ResponseEntity<?> handleInvalidInput(InvalidInputException ex) {
@@ -28,6 +28,17 @@ public class GlobalExceptionHandler {
                         "timestamp", LocalDateTime.now(),
                         "status", 409,
                         "error", "Conflict",
+                        "message", ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(AuthenticationFailedException.class)
+    public ResponseEntity<?> handleAuthFailed(AuthenticationFailedException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", 401,
+                        "error", "Unauthorized",
                         "message", ex.getMessage()
                 ));
     }

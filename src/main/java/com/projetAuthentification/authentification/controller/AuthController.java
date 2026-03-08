@@ -14,13 +14,15 @@ public class AuthController {
 
     public AuthController(AuthService authService) { this.authService = authService; }
 
-    /**
-     * Endpoint pour l'inscription
-     * @param body JSON avec "email" et "password"
-     * @return utilisateur créé
-     */
     @PostMapping("/register")
     public User register(@RequestBody Map<String, String> body) {
         return authService.register(body.get("email"), body.get("password"));
     }
+
+    @PostMapping("/login")
+    public Map<String, String> login(@RequestBody Map<String, String> body) {
+        authService.login(body.get("email"), body.get("password")); // Vérifie email + mdp
+        return Map.of("message", "Connexion réussie");
+    }
+
 }
