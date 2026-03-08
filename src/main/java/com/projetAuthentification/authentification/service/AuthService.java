@@ -9,18 +9,42 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.UUID;
 
-
+/**
+ * <h2>AuthService</h2>
+ * Service principal pour gérer l'authentification des utilisateurs.
+ * <p>
+ * Cette classe contient la logique métier pour :
+ * <ul>
+ *     <li>Inscription d'un nouvel utilisateur</li>
+ *     <li>Connexion d'un utilisateur existant</li>
+ *     <li>Gestion des tokens pour les routes protégées</li>
+ * </ul>
+ * <p>
+ * <strong>Attention :</strong> Cette implémentation est volontairement dangereuse
+ * et ne doit jamais être utilisée en production. Les mots de passe sont stockés en clair,
+ * et la sécurité est minimale.
+ */
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
     private final ConcurrentHashMap<String, String> tokenStore = new ConcurrentHashMap<>();
 
-
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
-    public AuthService(UserRepository userRepository) { this.userRepository = userRepository; }
+    public AuthService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
+    /**
+     * Inscrit un nouvel utilisateur avec un email et un mot de passe.
+     *
+     * @param email Email de l'utilisateur
+     * @param password Mot de passe de l'utilisateur (minimum 4 caractères)
+     * @return User l'utilisateur créé
+     * @throws InvalidInputException si l'email est vide ou le mot de passe trop court
+     * @throws ResourceConflictException si l'email existe déjà
+     */
     public User register(String email, String password) {
         if (email == null || email.isBlank()) {
             logger.warn("Inscription échouée : email vide");
@@ -37,11 +61,20 @@ public class AuthService {
 
         User user = new User();
         user.setEmail(email);
-        user.setPasswordClear(password);
+        user.setPasswordClear(password); // volontairement dangereux
         userRepository.save(user);
         logger.info("Inscription réussie pour {}", email);
         return user;
     }
+
+    /**
+     * Connecte un utilisateur existant en vérifiant son email et mot de passe.
+     *
+     * @param email Email de l'utilisateur
+     * @param password Mot de passe de l'utilisateur
+     * @return String Token généré pour l'accès aux routes protégées
+     * @throws AuthenticationFailedException si l'email est inconnu ou le mot de passe incorrect
+     */
     public String login(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
@@ -60,12 +93,19 @@ public class AuthService {
         return token;
     }
 
+    /**
+     * Récupère l'utilisateur correspondant à un token donné.
+     *
+     * @param token Token d'authentification
+     * @return User l'utilisateur correspondant
+     * @throws AuthenticationFailedException si le token est invalide ou expiré
+     */
     public User getUserFromToken(String token) {
         String email = tokenStore.get(token);
         if (email == null)
             throw new AuthenticationFailedException("Token invalide ou expiré");
+
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new AuthenticationFailedException("Email inconnu"));
     }
-
 }
