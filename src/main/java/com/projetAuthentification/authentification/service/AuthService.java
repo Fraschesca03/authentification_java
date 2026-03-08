@@ -6,11 +6,16 @@ import com.projetAuthentification.authentification.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
+
 
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final ConcurrentHashMap<String, String> tokenStore = new ConcurrentHashMap<>();
+
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
@@ -37,7 +42,7 @@ public class AuthService {
         logger.info("Inscription réussie pour {}", email);
         return user;
     }
-    public User login(String email, String password) {
+    public String login(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     logger.warn("Connexion échouée : email inconnu {}", email);
@@ -48,8 +53,19 @@ public class AuthService {
             throw new AuthenticationFailedException("Mot de passe incorrect");
         }
 
+        String token = UUID.randomUUID().toString();
+        tokenStore.put(token, email);
+
         logger.info("Connexion réussie pour {}", email);
-        return user;
+        return token;
+    }
+
+    public User getUserFromToken(String token) {
+        String email = tokenStore.get(token);
+        if (email == null)
+            throw new AuthenticationFailedException("Token invalide ou expiré");
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new AuthenticationFailedException("Email inconnu"));
     }
 
 }
