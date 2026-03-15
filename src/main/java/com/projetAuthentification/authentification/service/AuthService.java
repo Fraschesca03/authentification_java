@@ -54,7 +54,7 @@ public class AuthService {
             throw new InvalidInputException("Email vide");
         }
         if (!PasswordPolicyValidator.isValid(password)) {
-            throw new InvalidInputException("Mot de passe non conforme à la politique");
+            throw new InvalidInputException("Mot de passe doit contenir 12 caratères avec 1 maj, 1 minuscule, 1 chiffre et char special");
         }
         if (userRepository.existsByEmail(email)) {
             logger.warn("Inscription échouée : email déjà utilisé {}", email);
