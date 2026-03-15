@@ -8,6 +8,7 @@ import com.projetAuthentification.authentification.validator.PasswordPolicyValid
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.time.LocalDateTime;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.UUID;
 
@@ -83,11 +84,29 @@ public class AuthService {
                     logger.warn("Connexion échouée : email inconnu {}", email);
                     return new AuthenticationFailedException("Email inconnu");
                 });
-        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
-            logger.warn("Connexion échouée : mot de passe incorrect pour {}", email);
-            throw new AuthenticationFailedException("Mot de passe incorrect");
+        // Vérifie si l'utilisateur est verrouillé
+        if (user.getLockUntil() != null && user.getLockUntil().isAfter(LocalDateTime.now())) {
+            throw new AuthenticationFailedException("Trop de tentative de connexion. Réessayez dans 2 mn ");
         }
 
+        //Vérifie si les mdp correspondent
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
+            int attempts = user.getFailedAttempts() + 1;
+            user.setFailedAttempts(attempts);
+
+            if (attempts >= 5) { // 5 tentatives max
+                user.setLockUntil(LocalDateTime.now().plusMinutes(2)); // blocage 2 minutes
+                user.setFailedAttempts(0); // reset des tentatives après blocage
+            }
+            userRepository.save(user);
+            logger.warn("Connexion échouée : mot de passe incorrect pour {}", email);
+            throw new AuthenticationFailedException("Mot de passe incorrect");
+
+
+        }
+        user.setFailedAttempts(0);
+        user.setLockUntil(null);
+        userRepository.save(user);
         String token = UUID.randomUUID().toString();
         tokenStore.put(token, email);
 

@@ -32,7 +32,10 @@ public class User {
 
     @Column(nullable = true)
     private String passwordHash;
+    @Column(nullable = false)
+    private int failedAttempts = 0;
 
+    private LocalDateTime lockUntil;
     private LocalDateTime createdAt = LocalDateTime.now();
 
     // ----------------- Getters et setters -----------------
@@ -83,6 +86,29 @@ public class User {
      */
     public LocalDateTime getCreatedAt() { return createdAt; }
 
+    /**
+     * Retourne le nb de tentatives échoué
+     * @return failedAttempts de l'utilisateur
+     */
+    public int getFailedAttempts() { return failedAttempts; }
+
+    /**
+     * Définit le nb de tentatives échoué
+     * @param failedAttempts de l'utilisateur
+     */
+    public void setFailedAttempts(int failedAttempts) { this.failedAttempts = failedAttempts; }
+    /**
+     * Retourne la date/heure jusqu’à laquelle l’utilisateur est bloqué.
+     * @return lockUntil de l'utilisateur
+     */
+    public LocalDateTime getLockUntil() { return lockUntil; }
+
+
+    /**
+     * Définit la date/heure jusqu’à laquelle l’utilisateur est bloqué.
+     * @param lockUntil de l'utilisateur
+     */
+    public void setLockUntil(LocalDateTime lockUntil) { this.lockUntil = lockUntil; }
     /**
      * Définit la date de création de l'utilisateur.
      * @param createdAt de l'utilisateur

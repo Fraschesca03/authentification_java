@@ -58,7 +58,9 @@ class AuthServiceTest {
         InvalidInputException ex = assertThrows(InvalidInputException.class,
                 () -> authService.register("toto@example.com", badPassword));
 
-        assertEquals("Mot de passe non conforme à la politique", ex.getMessage());
+        assertEquals("Mot de passe doit contenir 12 caratères avec 1 maj, 1 minuscule, 1 chiffre et char special",
+                ex.getMessage()
+        );
     }
 
     @Test
@@ -130,5 +132,23 @@ class AuthServiceTest {
         AuthenticationFailedException ex = assertThrows(AuthenticationFailedException.class,
                 () -> authService.getUserFromToken("invalide"));
         assertEquals("Token invalide ou expiré", ex.getMessage());
+    }
+
+    @Test
+    void loginLockoutAfterFiveFailures() {
+        User user = new User();
+        user.setEmail("lock@example.com");
+        user.setPasswordHash(passwordEncoder.encode("correctpwd"));
+        when(userRepository.findByEmail("lock@example.com")).thenReturn(Optional.of(user));
+
+        // 5 tentatives incorrectes
+        for (int i = 0; i < 5; i++) {
+            assertThrows(AuthenticationFailedException.class, () -> authService.login("lock@example.com", "wrongpwd"));
+        }
+
+        // Le compte doit être verrouillé
+        AuthenticationFailedException ex = assertThrows(AuthenticationFailedException.class,
+                () -> authService.login("lock@example.com", "correctpwd"));
+        assertTrue(ex.getMessage().contains("Trop de tentative de connexion. Réessayez dans 2 mn "));
     }
 }
