@@ -1,166 +1,40 @@
-2026-03-09 06:08:02 INFO  c.p.a.AuthentificationApplication - Starting AuthentificationApplication using Java 17.0.18 with PID 7536 (C:\Documents\authentification\target\classes started by 26134 in C:\Documents\authentification)
-2026-03-09 06:08:02 INFO  c.p.a.AuthentificationApplication - No active profile set, falling back to 1 default profile: "default"
-2026-03-09 06:08:03 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-03-09 06:08:03 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 72 ms. Found 1 JPA repository interface.
-2026-03-09 06:08:04 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2026-03-09 06:08:04 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
-2026-03-09 06:08:04 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.52]
-2026-03-09 06:08:04 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
-2026-03-09 06:08:04 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1894 ms
-2026-03-09 06:08:04 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-03-09 06:08:04 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.42.Final
-2026-03-09 06:08:04 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
-2026-03-09 06:08:05 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-03-09 06:08:05 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
-2026-03-09 06:08:05 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
-2026-03-09 06:08:05 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
-2026-03-09 06:08:05 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
+2026-03-15 19:35:49 INFO  c.p.a.AuthentificationApplication - Starting AuthentificationApplication using Java 17.0.18 with PID 17572 (C:\Documents\authentification\target\classes started by 26134 in C:\Documents\authentification)
+2026-03-15 19:35:49 INFO  c.p.a.AuthentificationApplication - No active profile set, falling back to 1 default profile: "default"
+2026-03-15 19:35:50 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-15 19:35:50 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 52 ms. Found 1 JPA repository interface.
+2026-03-15 19:35:51 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2026-03-15 19:35:51 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-03-15 19:35:51 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.52]
+2026-03-15 19:35:51 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-03-15 19:35:51 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1336 ms
+2026-03-15 19:35:51 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-15 19:35:51 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.42.Final
+2026-03-15 19:35:51 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-03-15 19:35:51 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-15 19:35:51 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-03-15 19:35:52 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@54be6213
+2026-03-15 19:35:52 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-03-15 19:35:52 WARN  org.hibernate.orm.deprecation - HHH90000025: MySQL8Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-15 19:35:52 WARN  org.hibernate.orm.deprecation - HHH90000026: MySQL8Dialect has been deprecated; use org.hibernate.dialect.MySQLDialect instead
+2026-03-15 19:35:52 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
 	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
 	Database driver: undefined/unknown
-	Database version: 2.3.232
+	Database version: 8.0
 	Autocommit mode: undefined/unknown
 	Isolation level: undefined/unknown
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2026-03-09 06:08:06 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-03-09 06:08:06 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-03-09 06:08:06 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-03-09 06:08:07 INFO  o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:testdb'
-2026-03-09 06:08:07 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
-2026-03-09 06:08:07 INFO  c.p.a.AuthentificationApplication - Started AuthentificationApplication in 5.624 seconds (process running for 6.516)
-2026-03-09 06:12:57 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-03-09 06:12:57 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
-2026-03-09 06:12:57 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
-2026-03-09 06:12:58 INFO  c.p.a.service.AuthService - Inscription réussie pour fitiafranschesca@gmail.com
-2026-03-09 06:13:10 INFO  c.p.a.service.AuthService - Connexion réussie pour fitiafranschesca@gmail.com
-2026-03-09 06:17:50 WARN  c.p.a.service.AuthService - Inscription échouée : email déjà utilisé fitiafranschesca@gmail.com
-2026-03-09 06:18:30 INFO  c.p.a.service.AuthService - Inscription réussie pour fitia@gmail.com
-2026-03-09 06:19:50 INFO  c.p.a.service.AuthService - Connexion réussie pour fitiafranschesca@gmail.com
-2026-03-09 06:24:50 WARN  c.p.a.service.AuthService - Inscription échouée : email déjà utilisé fitiafranschesca@gmail.com
-2026-03-09 06:26:36 WARN  c.p.a.service.AuthService - Connexion échouée : mot de passe incorrect pour fitiafranschesca@gmail.com
-2026-03-09 06:26:43 INFO  c.p.a.service.AuthService - Connexion réussie pour fitiafranschesca@gmail.com
-2026-03-09 06:33:07 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
-2026-03-09 06:33:07 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
-2026-03-09 06:33:07 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-03-09 06:33:07 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
-2026-03-09 06:33:07 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
-2026-03-09 14:29:15 INFO  c.p.a.AuthentificationApplication - Starting AuthentificationApplication using Java 17.0.18 with PID 27032 (C:\Documents\authentification\target\classes started by 26134 in C:\Documents\authentification)
-2026-03-09 14:29:15 INFO  c.p.a.AuthentificationApplication - No active profile set, falling back to 1 default profile: "default"
-2026-03-09 14:29:16 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-03-09 14:29:16 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 60 ms. Found 1 JPA repository interface.
-2026-03-09 14:29:16 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2026-03-09 14:29:16 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
-2026-03-09 14:29:16 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.52]
-2026-03-09 14:29:17 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
-2026-03-09 14:29:17 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1354 ms
-2026-03-09 14:29:17 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-03-09 14:29:17 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.42.Final
-2026-03-09 14:29:17 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
-2026-03-09 14:29:17 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-03-09 14:29:17 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
-2026-03-09 14:29:18 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
-2026-03-09 14:29:18 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
-2026-03-09 14:29:18 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
-	Database driver: undefined/unknown
-	Database version: 2.3.232
-	Autocommit mode: undefined/unknown
-	Isolation level: undefined/unknown
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2026-03-09 14:29:19 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-03-09 14:29:19 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-03-09 14:29:19 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-03-09 14:29:19 INFO  o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:testdb'
-2026-03-09 14:29:19 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
-2026-03-09 14:29:19 INFO  c.p.a.AuthentificationApplication - Started AuthentificationApplication in 5.016 seconds (process running for 5.703)
-2026-03-09 14:29:39 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-03-09 14:29:39 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
-2026-03-09 14:29:39 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms
-2026-03-09 14:29:39 INFO  c.p.a.service.AuthService - Inscription réussie pour fitiafranschesca@gmail.com
-2026-03-09 14:29:55 INFO  c.p.a.service.AuthService - Inscription réussie pour fitia@gmail.com
-2026-03-09 14:30:05 INFO  c.p.a.service.AuthService - Connexion réussie pour fitia@gmail.com
-2026-03-09 14:30:54 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
-2026-03-09 14:30:54 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
-2026-03-09 14:30:54 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-03-09 14:30:54 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
-2026-03-09 14:30:54 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
-2026-03-09 16:17:09 INFO  c.p.a.AuthentificationApplication - Starting AuthentificationApplication using Java 17.0.18 with PID 30612 (C:\Documents\authentification\target\classes started by 26134 in C:\Documents\authentification)
-2026-03-09 16:17:09 INFO  c.p.a.AuthentificationApplication - No active profile set, falling back to 1 default profile: "default"
-2026-03-09 16:17:10 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-03-09 16:17:10 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 86 ms. Found 1 JPA repository interface.
-2026-03-09 16:17:10 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2026-03-09 16:17:10 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
-2026-03-09 16:17:10 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.52]
-2026-03-09 16:17:11 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
-2026-03-09 16:17:11 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1897 ms
-2026-03-09 16:17:11 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-03-09 16:17:11 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.42.Final
-2026-03-09 16:17:11 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
-2026-03-09 16:17:13 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-03-09 16:17:13 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
-2026-03-09 16:17:17 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
-2026-03-09 16:17:17 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
-2026-03-09 16:17:17 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
-	Database driver: undefined/unknown
-	Database version: 2.3.232
-	Autocommit mode: undefined/unknown
-	Isolation level: undefined/unknown
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2026-03-09 16:17:18 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-03-09 16:17:19 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-03-09 16:17:19 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-03-09 16:17:20 INFO  o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:testdb'
-2026-03-09 16:17:20 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
-2026-03-09 16:17:20 INFO  c.p.a.AuthentificationApplication - Started AuthentificationApplication in 11.86 seconds (process running for 12.628)
-2026-03-09 16:23:18 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-03-09 16:23:18 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
-2026-03-09 16:23:18 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 3 ms
-2026-03-09 16:23:19 INFO  c.p.a.service.AuthService - Inscription réussie pour fitiafranschesca@gmail.com
-2026-03-09 16:23:25 WARN  c.p.a.service.AuthService - Connexion échouée : mot de passe incorrect pour fitiafranschesca@gmail.com
-2026-03-09 16:24:07 WARN  c.p.a.service.AuthService - Connexion échouée : mot de passe incorrect pour fitiafranschesca@gmail.com
-2026-03-09 16:24:22 INFO  c.p.a.service.AuthService - Inscription réussie pour fitia@gmail.com
-2026-03-09 16:24:36 INFO  c.p.a.service.AuthService - Connexion réussie pour fitia@gmail.com
-2026-03-09 16:25:07 INFO  c.p.a.service.AuthService - Connexion réussie pour fitia@gmail.com
-2026-03-09 16:26:02 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
-2026-03-09 16:26:02 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
-2026-03-09 16:26:02 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-03-09 16:26:02 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
-2026-03-09 16:26:02 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
-2026-03-09 16:36:45 INFO  c.p.a.AuthentificationApplication - Starting AuthentificationApplication using Java 17.0.18 with PID 9936 (C:\Documents\authentification\target\classes started by 26134 in C:\Documents\authentification)
-2026-03-09 16:36:45 INFO  c.p.a.AuthentificationApplication - No active profile set, falling back to 1 default profile: "default"
-2026-03-09 16:36:46 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-03-09 16:36:46 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 66 ms. Found 1 JPA repository interface.
-2026-03-09 16:36:47 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
-2026-03-09 16:36:47 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
-2026-03-09 16:36:47 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.52]
-2026-03-09 16:36:47 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
-2026-03-09 16:36:47 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1632 ms
-2026-03-09 16:36:47 INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-03-09 16:36:47 INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.6.42.Final
-2026-03-09 16:36:47 INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
-2026-03-09 16:36:48 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-03-09 16:36:48 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
-2026-03-09 16:36:48 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
-2026-03-09 16:36:48 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
-2026-03-09 16:36:48 INFO  o.hibernate.orm.connections.pooling - HHH10001005: Database info:
-	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
-	Database driver: undefined/unknown
-	Database version: 2.3.232
-	Autocommit mode: undefined/unknown
-	Isolation level: undefined/unknown
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2026-03-09 16:36:49 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-03-09 16:36:49 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-03-09 16:36:49 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-03-09 16:36:50 INFO  o.s.b.a.h.H2ConsoleAutoConfiguration - H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:testdb'
-2026-03-09 16:36:50 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
-2026-03-09 16:36:50 INFO  c.p.a.AuthentificationApplication - Started AuthentificationApplication in 5.19 seconds (process running for 5.765)
-2026-03-09 16:58:37 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
-2026-03-09 16:58:37 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
-2026-03-09 16:58:37 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-03-09 16:58:37 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
-2026-03-09 16:58:37 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2026-03-15 19:35:52 INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-15 19:35:52 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-15 19:35:53 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-15 19:35:53 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2026-03-15 19:35:53 INFO  c.p.a.AuthentificationApplication - Started AuthentificationApplication in 4.182 seconds (process running for 4.784)
+2026-03-15 19:36:47 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-15 19:36:47 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-03-15 19:36:47 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-03-15 19:36:47 INFO  c.p.a.service.AuthService - Inscription réussie pour toto@exampl.com
+2026-03-15 20:05:17 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete
+2026-03-15 20:05:18 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete
+2026-03-15 20:05:18 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-03-15 20:05:18 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-03-15 20:05:18 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

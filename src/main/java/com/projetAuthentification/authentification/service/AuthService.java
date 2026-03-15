@@ -3,6 +3,7 @@ package com.projetAuthentification.authentification.service;
 import com.projetAuthentification.authentification.entity.User;
 import com.projetAuthentification.authentification.exception.*;
 import com.projetAuthentification.authentification.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final ConcurrentHashMap<String, String> tokenStore = new ConcurrentHashMap<>();
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
@@ -61,7 +63,7 @@ public class AuthService {
 
         User user = new User();
         user.setEmail(email);
-        user.setPasswordClear(password); // volontairement dangereux
+        user.setPasswordHash(passwordEncoder.encode(password));
         userRepository.save(user);
         logger.info("Inscription réussie pour {}", email);
         return user;
@@ -81,7 +83,7 @@ public class AuthService {
                     logger.warn("Connexion échouée : email inconnu {}", email);
                     return new AuthenticationFailedException("Email inconnu");
                 });
-        if (!user.getPasswordClear().equals(password)) {
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
             logger.warn("Connexion échouée : mot de passe incorrect pour {}", email);
             throw new AuthenticationFailedException("Mot de passe incorrect");
         }

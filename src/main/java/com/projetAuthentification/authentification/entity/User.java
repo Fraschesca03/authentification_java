@@ -33,6 +33,9 @@ public class User {
     @Column(nullable = false)
     private String passwordClear; // mot de passe en clair
 
+    @Column(nullable = true)
+    private String passwordHash;
+
     private LocalDateTime createdAt = LocalDateTime.now();
 
     // ----------------- Getters et setters -----------------
@@ -75,6 +78,21 @@ public class User {
      * @param passwordClear de l'utilisateur
      */
     public void setPasswordClear(String passwordClear) { this.passwordClear = passwordClear; }
+
+    /**
+     * Retourne le mot de passe hashé.
+     * @return mdp  hashé de l'utilisateur
+     */
+    public String getPasswordHash() { return passwordHash; }
+
+    /**
+            * Définit le mot de passe en hashé.
+     * <p>
+     * <strong>Attention :</strong> le mot de passe est stocké en clair,
+     * ce qui est dangereux et non recommandé pour une application réelle.
+     * @param passwordClear de l'utilisateur
+     */
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 
     /**
      * Retourne la date de création de l'utilisateur.
