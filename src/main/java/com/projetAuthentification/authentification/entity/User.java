@@ -30,9 +30,6 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
-    private String passwordClear; // mot de passe en clair
-
     @Column(nullable = true)
     private String passwordHash;
 
@@ -64,20 +61,6 @@ public class User {
      */
     public void setEmail(String email) { this.email = email; }
 
-    /**
-     * Retourne le mot de passe en clair.
-     * @return mdp de l'utilisateur
-     */
-    public String getPasswordClear() { return passwordClear; }
-
-    /**
-     * Définit le mot de passe en clair.
-     * <p>
-     * <strong>Attention :</strong> le mot de passe est stocké en clair,
-     * ce qui est dangereux et non recommandé pour une application réelle.
-     * @param passwordClear de l'utilisateur
-     */
-    public void setPasswordClear(String passwordClear) { this.passwordClear = passwordClear; }
 
     /**
      * Retourne le mot de passe hashé.
@@ -90,7 +73,7 @@ public class User {
      * <p>
      * <strong>Attention :</strong> le mot de passe est stocké en clair,
      * ce qui est dangereux et non recommandé pour une application réelle.
-     * @param passwordClear de l'utilisateur
+     * @param passwordHash de l'utilisateur
      */
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 

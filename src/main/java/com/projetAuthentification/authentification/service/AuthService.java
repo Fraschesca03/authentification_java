@@ -4,6 +4,7 @@ import com.projetAuthentification.authentification.entity.User;
 import com.projetAuthentification.authentification.exception.*;
 import com.projetAuthentification.authentification.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import com.projetAuthentification.authentification.validator.PasswordPolicyValidator;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,9 +53,8 @@ public class AuthService {
             logger.warn("Inscription échouée : email vide");
             throw new InvalidInputException("Email vide");
         }
-        if (password == null || password.length() < 4) {
-            logger.warn("Inscription échouée : mot de passe trop court pour {}", email);
-            throw new InvalidInputException("Mot de passe trop court");
+        if (!PasswordPolicyValidator.isValid(password)) {
+            throw new InvalidInputException("Mot de passe non conforme à la politique");
         }
         if (userRepository.existsByEmail(email)) {
             logger.warn("Inscription échouée : email déjà utilisé {}", email);
