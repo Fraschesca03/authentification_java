@@ -5,19 +5,24 @@ import java.time.LocalDateTime;
 
 /**
  * <h2>Entité User</h2>
+ *
  * Représente un utilisateur dans le système.
- * <p>
- * Cette entité contient les informations de base d'un utilisateur :
- * <ul>
- *     <li>id : identifiant unique généré automatiquement</li>
- *     <li>email : adresse email unique de l'utilisateur</li>
- *     <li>passwordClear : mot de passe stocké en clair (volontairement dangereux)</li>
- *     <li>createdAt : date de création de l'utilisateur</li>
- * </ul>
- * <p>
- * <strong>Attention :</strong> Cette implémentation est volontairement dangereuse
- * et ne doit jamais être utilisée en production. Les mots de passe sont stockés en clair
- * et il n'y a aucune sécurité réelle sur les données.
+ *
+ * <h3>Changement TP3 vs TP2 :</h3>
+ * Dans le TP2, le mot de passe était stocké avec BCrypt (hash non réversible).
+ * BCrypt est excellent pour la sécurité MAIS le serveur ne peut plus retrouver
+ * le mot de passe en clair — ce qui est impossible avec le protocole HMAC.
+ *
+ * Dans le TP3, on passe à un chiffrement AES RÉVERSIBLE :
+ *   - Le mot de passe est chiffré avec la Server Master Key (SMK)
+ *   - Le serveur peut le déchiffrer quand il a besoin de recalculer le HMAC
+ *   - Le champ s'appelle maintenant "password_encrypted" en base
+ *
+ * <h3>Avertissement pédagogique :</h3>
+ * Stocker un mot de passe réversible est un compromis accepté ici
+ * UNIQUEMENT pour apprendre le protocole HMAC. En production réelle,
+ * on utiliserait des protocoles comme SRP (Secure Remote Password)
+ * qui évitent complètement ce problème.
  */
 @Entity
 @Table(name = "users")
@@ -27,91 +32,69 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Email unique — sert d'identifiant de connexion
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = true)
-    private String passwordHash;
+    // ── CHANGEMENT TP3 ───────────────────────────────────────────────────────
+    // Avant (TP2) : private String passwordHash;
+    //   → BCrypt, non réversible, impossible de retrouver le mot de passe
+    // Maintenant (TP3) : private String passwordEncrypted;
+    //   → AES chiffré avec la SMK, réversible via CryptoService.decrypt()
+    //   → Nécessaire pour que le serveur puisse recalculer le HMAC
+    @Column(name = "password_encrypted", nullable = false)
+    private String passwordEncrypted;
+
+    // Nom de l'utilisateur (ajouté en TP2)
+    @Column(nullable = false)
+    private String nom;
+
+    // Prénom de l'utilisateur (ajouté en TP2)
+    @Column(nullable = false)
+    private String prenom;
+
+    // Compteur de tentatives de connexion échouées (protection brute-force TP2)
     @Column(nullable = false)
     private int failedAttempts = 0;
 
+    // Date/heure jusqu'à laquelle le compte est verrouillé (protection TP2)
     private LocalDateTime lockUntil;
+
+    // Date de création du compte
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // ----------------- Getters et setters -----------------
+    // ── Getters et Setters ───────────────────────────────────────────────────
 
-    /**
-     * Retourne l'identifiant unique de l'utilisateur.
-     * @return ID de l'utilisateur
-     */
     public Long getId() { return id; }
-
-    /**
-     * Définit l'identifiant unique de l'utilisateur.
-     * @param id ID à définir
-     */
     public void setId(Long id) { this.id = id; }
 
-    /**
-     * Retourne l'adresse email de l'utilisateur.
-     * @return email de l'utilisateur
-     */
     public String getEmail() { return email; }
-
-    /**
-     * Définit l'adresse email de l'utilisateur.
-     * @param email de l'utilisateur
-     */
     public void setEmail(String email) { this.email = email; }
 
-
     /**
-     * Retourne le mot de passe hashé.
-     * @return mdp  hashé de l'utilisateur
+     * Retourne le mot de passe chiffré AES stocké en base.
+     * Ce n'est PAS le mot de passe en clair.
+     * Pour obtenir le mot de passe en clair, utiliser CryptoService.decrypt()
      */
-    public String getPasswordHash() { return passwordHash; }
+    public String getPasswordEncrypted() { return passwordEncrypted; }
+    public void setPasswordEncrypted(String passwordEncrypted) {
+        this.passwordEncrypted = passwordEncrypted;
+    }
 
-    /**
-            * Définit le mot de passe en hashé.
-     * <p>
-     * <strong>Attention :</strong> le mot de passe est stocké en clair,
-     * ce qui est dangereux et non recommandé pour une application réelle.
-     * @param passwordHash de l'utilisateur
-     */
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public String getNom() { return nom; }
+    public void setNom(String nom) { this.nom = nom; }
 
-    /**
-     * Retourne la date de création de l'utilisateur.
-     * @return createdAt de l'utilisateur
-     */
-    public LocalDateTime getCreatedAt() { return createdAt; }
+    public String getPrenom() { return prenom; }
+    public void setPrenom(String prenom) { this.prenom = prenom; }
 
-    /**
-     * Retourne le nb de tentatives échoué
-     * @return failedAttempts de l'utilisateur
-     */
     public int getFailedAttempts() { return failedAttempts; }
+    public void setFailedAttempts(int failedAttempts) {
+        this.failedAttempts = failedAttempts;
+    }
 
-    /**
-     * Définit le nb de tentatives échoué
-     * @param failedAttempts de l'utilisateur
-     */
-    public void setFailedAttempts(int failedAttempts) { this.failedAttempts = failedAttempts; }
-    /**
-     * Retourne la date/heure jusqu’à laquelle l’utilisateur est bloqué.
-     * @return lockUntil de l'utilisateur
-     */
     public LocalDateTime getLockUntil() { return lockUntil; }
-
-
-    /**
-     * Définit la date/heure jusqu’à laquelle l’utilisateur est bloqué.
-     * @param lockUntil de l'utilisateur
-     */
     public void setLockUntil(LocalDateTime lockUntil) { this.lockUntil = lockUntil; }
-    /**
-     * Définit la date de création de l'utilisateur.
-     * @param createdAt de l'utilisateur
-     */
+
+    public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
