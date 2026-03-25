@@ -119,7 +119,7 @@ public class AuthService {
                             "1 minuscule, 1 chiffre et 1 caractere special");
         }
         if (userRepository.existsByEmail(email)) {
-            logger.warn("Inscription echouee : email deja utilise {}", email);
+            logger.warn("Inscription echouee : email deja utilise");
             throw new ResourceConflictException("Email deja utilise");
         }
 
@@ -133,7 +133,7 @@ public class AuthService {
             // Le resultat est une String Base64 stockee en base
             user.setPasswordEncrypted(cryptoService.encrypt(password));
             userRepository.save(user);
-            logger.info("Inscription reussie pour {}", email);
+            logger.info("Inscription reussie");
             return user;
         } catch (Exception e) {
             logger.error("Erreur de chiffrement lors de l inscription", e);
@@ -161,26 +161,21 @@ public class AuthService {
      * @param hmacRecu   signature HMAC envoyee par le client
      * @return Map avec "accessToken" et "expiresAt"
      */
-    public Map<String, String> login(String email, String nonce,
-                                     long timestamp, String hmacRecu) {
+    public Map<String, String> login(String email, String nonce, long timestamp, String hmacRecu) {
 
-        // Etape 1 : Email existe ?
+        // Etape 1 : verifier si email existe
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
-                    logger.warn("Connexion echouee : email inconnu {}", email);
-                    // On dit "Acces refuse" plutot que "Email inconnu"
-                    // pour ne pas reveler si l email existe en base
+                    logger.warn("Connexion echouee : email inconnu");
+                    // On dit "Acces refuse" plutot que "Email inconnu" pour ne pas reveler si l email existe en base
                     return new AuthenticationFailedException("Acces refuse");
                 });
 
         // Etape 2 : Timestamp dans la fenetre +-60 secondes ?
         // Instant.now().getEpochSecond() = heure actuelle du serveur en secondes Unix
         long maintenant = Instant.now().getEpochSecond();
-        // Math.abs() calcule la valeur absolue de la difference
-        // Exemple : maintenant=1000, timestamp=950 -> abs(50) < 60 -> OK
-        // Exemple : maintenant=1000, timestamp=800 -> abs(200) > 60 -> KO
         if (Math.abs(maintenant - timestamp) > timestampWindow) {
-            logger.warn("Connexion echouee : timestamp invalide pour {}", email);
+            logger.warn("Connexion echouee : timestamp invalide ");
             throw new AuthenticationFailedException("Acces refuse");
         }
 
@@ -189,18 +184,17 @@ public class AuthService {
         // ifPresent = "si on trouve ce nonce en base, executer ce bloc"
         // Si le nonce est deja en base = tentative de rejeu = refus
         authNonceRepository.findByUserAndNonce(user, nonce).ifPresent(n -> {
-            logger.warn("Connexion echouee : nonce reutilise pour {}", email);
+            logger.warn("Connexion echouee : nonce reutilise");
             throw new AuthenticationFailedException("Acces refuse");
         });
 
         // Etape 4 : Dechiffrer le mot de passe
-        // On retrouve le mot de passe en clair grace au dechiffrement AES + SMK
-        // C'est la cle qui va servir a recalculer le HMAC
+        // On retrouve le mot de passe en clair grace au dechiffrement AES + SMK C'est la cle qui va servir a recalculer le HMAC
         String motDePasseClair;
         try {
             motDePasseClair = cryptoService.decrypt(user.getPasswordEncrypted());
         } catch (Exception e) {
-            logger.error("Erreur de dechiffrement pour {}", email, e);
+            logger.error("Erreur de dechiffrement", e);
             throw new AuthenticationFailedException("Erreur interne");
         }
 
@@ -214,7 +208,7 @@ public class AuthService {
             // Si le client a utilise le bon mot de passe, les deux HMAC seront identiques
             hmacAttendu = cryptoService.computeHmac(motDePasseClair, message);
         } catch (Exception e) {
-            logger.error("Erreur de calcul HMAC pour {}", email, e);
+            logger.error("Erreur de calcul HMAC", e);
             throw new AuthenticationFailedException("Erreur interne");
         }
 
@@ -222,7 +216,7 @@ public class AuthService {
         // compareHmacConstantTime() prend toujours le meme temps, peu importe
         // a quel caractere les deux signatures different
         if (!cryptoService.compareHmacConstantTime(hmacAttendu, hmacRecu)) {
-            logger.warn("Connexion echouee : HMAC invalide pour {}", email);
+            logger.warn("Connexion echouee : HMAC invalide");
             throw new AuthenticationFailedException("Acces refuse");
         }
 
@@ -244,7 +238,7 @@ public class AuthService {
         // On stocke en memoire : token -> email (pour /api/me)
         tokenStore.put(accessToken, email);
 
-        logger.info("Connexion reussie pour {}", email);
+        logger.info("Connexion reussie");
 
         return Map.of(
                 "accessToken", accessToken,
@@ -252,8 +246,7 @@ public class AuthService {
         );
     }
 
-    // ── RECUPERATION UTILISATEUR ─────────────────────────────────────────────
-
+    // RECUPERATION UTILISATEUR
     /**
      * Recupere l'utilisateur correspondant a un access token.
      * Utilise par le endpoint GET /api/me.
@@ -270,8 +263,7 @@ public class AuthService {
                 .orElseThrow(() -> new AuthenticationFailedException("Utilisateur introuvable"));
     }
 
-    // ── NETTOYAGE AUTOMATIQUE DES NONCES EXPIRES ─────────────────────────────
-
+    // NETTOYAGE AUTOMATIQUE DES NONCES EXPIRES
     /**
      * Supprime automatiquement les nonces expires de la base.
      *

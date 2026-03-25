@@ -14,9 +14,9 @@ import java.time.LocalDateTime;
  * pour s'assurer qu'elle ne sera JAMAIS réutilisée.
  *
  * <h3>Pourquoi cette table existe ?</h3>
- * Sans cette table, un attaquant qui intercepte ta requête de login
+ * Sans cette table, un attaquant qui intercepte la requête de login
  * (email + nonce + timestamp + hmac) pourrait la renvoyer identique
- * au serveur et se connecter à ta place. C'est une "replay attack".
+ * au serveur et se connecter à la place de l'utilisateur. C'est une "replay attack".
  * En stockant chaque nonce consommé, le serveur peut détecter et rejeter
  * toute tentative de réutilisation.
  *

@@ -37,26 +37,20 @@ import java.util.Base64;
 @Service
 public class CryptoService {
 
+
+    @Value("${app.smk}")
+    private String smk;
     /**
      * La Server Master Key lue depuis application.properties.
      *
      * @Value("${app.smk}") dit à Spring :
-     * "injecte la valeur de app.smk dans cette variable au démarrage"
-     *
-     * Cette clé ne doit JAMAIS être hardcodée dans le code Java.
-     * Elle doit venir de la configuration ou d'une variable d'environnement.
-     */
-    @Value("${app.smk}")
-    private String smk;
+     * "injecte la valeur de app.smk dans la variable smk au démarrage"
 
-    // ── Chiffrement AES ──────────────────────────────────────────────────────
-
+    // Chiffrement AES
     /**
      * Chiffre un texte en clair avec AES-256 et la SMK.
-     *
      * Utilisé dans AuthService.register() pour chiffrer le mot de passe
      * avant de le stocker en base de données.
-     *
      * Étapes internes :
      *   1. Convertit la SMK en clé AES de 32 octets (Arrays.copyOf)
      *   2. Initialise le cipher AES en mode ENCRYPT
@@ -67,6 +61,7 @@ public class CryptoService {
      * @return le mot de passe chiffré, encodé en Base64
      * @throws Exception si la clé est invalide ou l'algorithme indisponible
      */
+
     public String encrypt(String plainText) throws Exception {
         // buildKey() transforme la SMK (String) en objet SecretKeySpec (32 octets)
         SecretKeySpec key = buildKey();
@@ -75,7 +70,7 @@ public class CryptoService {
         // "AES/ECB/PKCS5Padding" = algorithme AES, mode ECB, rembourrage PKCS5
         Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 
-        // ENCRYPT_MODE = on va chiffrer (l'inverse serait DECRYPT_MODE)
+        // ENCRYPT_MODE : chiffrer (l'inverse serait DECRYPT_MODE)
         cipher.init(Cipher.ENCRYPT_MODE, key);
 
         // doFinal() fait le chiffrement et retourne des octets bruts
@@ -91,7 +86,7 @@ public class CryptoService {
      *
      * Utilisé dans AuthService.login() pour retrouver le mot de passe en clair
      * afin de pouvoir recalculer le HMAC côté serveur.
-     *
+
      * C'est l'opération INVERSE de encrypt() :
      *   encrypt("MonMotDePasse") → "8fGhJ2kL9mN..."
      *   decrypt("8fGhJ2kL9mN...") → "MonMotDePasse"
@@ -149,7 +144,7 @@ public class CryptoService {
             "HmacSHA256"
         );
 
-        // init() configure le Mac avec notre clé
+        // init() configure le Mac avec la clé
         mac.init(keySpec);
 
         // doFinal() calcule la signature HMAC sur le message

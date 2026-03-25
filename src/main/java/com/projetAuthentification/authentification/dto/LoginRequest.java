@@ -52,7 +52,7 @@ public class LoginRequest {
     // Exemple : "xK9mP2qR7vL4nS8oT3uQ6wE1rY5..."
     private String hmac;
 
-    // ── Getters et Setters ───────────────────────────────────────────────────
+    // Getters et Setters
     // Spring (Jackson) a besoin des getters pour sérialiser
     // et des setters pour désérialiser le JSON entrant
 
