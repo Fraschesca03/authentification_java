@@ -27,6 +27,10 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class ControllerAdvice {
+    private static final String TIMESTAMP = "timestamp";
+    private static final String STATUS = "status";
+    private static final String ERROR = "error";
+    private static final String MESSAGE = "message";
     /**
      * Gestion des erreurs liées aux entrées invalides.
      *
@@ -34,13 +38,14 @@ public class ControllerAdvice {
      * @return ResponseEntity avec status 400 et détails de l'erreur
      */
     @ExceptionHandler(InvalidInputException.class)
-    public ResponseEntity<?> handleInvalidInput(InvalidInputException ex) {
+    public ResponseEntity<Map<String, Object>> handleInvalidInput(InvalidInputException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "status", 400,
-                        "error", "Bad Request",
-                        "message", ex.getMessage()
+                        TIMESTAMP, LocalDateTime.now(),
+                        STATUS, 400,
+
+                        ERROR, "Bad Request",
+                        MESSAGE, ex.getMessage()
                 ));
     }
     /**
@@ -50,13 +55,13 @@ public class ControllerAdvice {
      * @return ResponseEntity avec status 409 et détails de l'erreur
      */
     @ExceptionHandler(ResourceConflictException.class)
-    public ResponseEntity<?> handleConflict(ResourceConflictException ex) {
+    public ResponseEntity<Map<String, Object>> handleConflict(ResourceConflictException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "status", 409,
-                        "error", "Conflict",
-                        "message", ex.getMessage()
+                        TIMESTAMP, LocalDateTime.now(),
+                        STATUS, 409,
+                        ERROR, "Conflict",
+                        MESSAGE, ex.getMessage()
                 ));
     }
     /**
@@ -66,13 +71,13 @@ public class ControllerAdvice {
      * @return ResponseEntity avec status 401 et détails de l'erreur
      */
     @ExceptionHandler(AuthenticationFailedException.class)
-    public ResponseEntity<?> handleAuthFailed(AuthenticationFailedException ex) {
+    public ResponseEntity<Map<String, Object>> handleAuthFailed(AuthenticationFailedException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "status", 401,
-                        "error", "Unauthorized",
-                        "message", ex.getMessage()
+                        TIMESTAMP, LocalDateTime.now(),
+                        STATUS, 401,
+                        ERROR, "Unauthorized",
+                        MESSAGE, ex.getMessage()
                 ));
     }
 }

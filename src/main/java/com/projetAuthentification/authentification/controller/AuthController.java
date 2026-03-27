@@ -2,9 +2,6 @@ package com.projetAuthentification.authentification.controller;
 
 import com.projetAuthentification.authentification.dto.LoginRequest;
 import com.projetAuthentification.authentification.entity.User;
-import com.projetAuthentification.authentification.exception.AuthenticationFailedException;
-import com.projetAuthentification.authentification.exception.InvalidInputException;
-import com.projetAuthentification.authentification.exception.ResourceConflictException;
 import com.projetAuthentification.authentification.service.AuthService;
 import org.springframework.web.bind.annotation.*;
 

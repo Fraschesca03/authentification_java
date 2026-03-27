@@ -370,21 +370,17 @@ class AuthServiceTest {
     @Test
     @DisplayName("CryptoService : encrypt() puis decrypt() retourne le texte original")
     void cryptoService_encryptDecryptReversible() throws Exception {
-        // ARRANGE — vrai CryptoService (pas un mock) avec une vraie SMK
         CryptoService realCrypto = new CryptoService();
-        // Injecter la SMK via ReflectionTestUtils
-        ReflectionTestUtils.setField(realCrypto, "smk", "UneCleSuperSecreteDeMinimum32Car!!");
+
+        // CHANGEMENT TP4 : "smk" → "masterKey"
+        ReflectionTestUtils.setField(realCrypto, "masterKey",
+                "UneCleSuperSecreteDeMinimum32Car!!");
 
         String texteOriginal = "MonMotDePasse123!";
+        String chiffre       = realCrypto.encrypt(texteOriginal);
+        String dechiffre     = realCrypto.decrypt(chiffre);
 
-        // ACT
-        String chiffre  = realCrypto.encrypt(texteOriginal);
-        String dechiffre = realCrypto.decrypt(chiffre);
-
-        // ASSERT
-        // Le texte déchiffré doit être identique au texte original
         assertThat(dechiffre).isEqualTo(texteOriginal);
-        // Le texte chiffré ne doit pas être égal au texte original
         assertThat(chiffre).isNotEqualTo(texteOriginal);
     }
 }
