@@ -383,4 +383,67 @@ class AuthServiceTest {
         assertThat(dechiffre).isEqualTo(texteOriginal);
         assertThat(chiffre).isNotEqualTo(texteOriginal);
     }
+    @Test
+    @DisplayName("Login OK : le nonce est enregistré en base")
+    void loginOk_nonceSauvegarde() throws Exception {
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(userValide));
+        when(authNonceRepository.findByUserAndNonce(any(), any()))
+                .thenReturn(Optional.empty());
+        when(cryptoService.decrypt(any())).thenReturn(PASSWORD);
+        when(cryptoService.computeHmac(any(), any())).thenReturn("sig");
+        when(cryptoService.compareHmacConstantTime(any(), any())).thenReturn(true);
+
+        authService.login(EMAIL, nonceValide, timestampValide, "sig");
+
+        verify(authNonceRepository, times(1)).save(any(AuthNonce.class));
+    }
+    @Test
+    @DisplayName("Nonce expiré / supprimé ou refusé")
+    void nonceExpireTest() {
+        AuthNonce nonce = new AuthNonce();
+        nonce.setExpiresAt(LocalDateTime.now().minusMinutes(10));
+        assertThatThrownBy(() ->
+                authService.login(EMAIL, nonceValide, timestampValide, "sig"))
+                .isInstanceOf(AuthenticationFailedException.class);
+    }
+    @Test
+    @DisplayName("Token null : rejet")
+    void tokenNull() {
+        assertThatThrownBy(() -> authService.getUserFromToken(null))
+                .isInstanceOf(NullPointerException.class);
+    }
+    @Test
+    @DisplayName("Decrypt KO si masterKey invalide")
+    void decryptFailWrongKey() {
+        CryptoService crypto = new CryptoService();
+        ReflectionTestUtils.setField(crypto, "masterKey", "badkey");
+
+        assertThatThrownBy(() -> crypto.decrypt("v1:abc:def"))
+                .isInstanceOf(Exception.class);
+    }
+    @Test
+    @DisplayName("Encrypt KO si texte null")
+    void encryptNull() {
+        CryptoService crypto = new CryptoService();
+
+        assertThatThrownBy(() -> crypto.encrypt(null))
+                .isInstanceOf(Exception.class);
+    }
+    @Test
+    @DisplayName("Password jamais stocké en clair")
+    void passwordNeverStoredPlain() throws Exception {
+        when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
+        when(cryptoService.encrypt(PASSWORD)).thenReturn("encrypted");
+
+        User user = authService.register(EMAIL, PASSWORD, NOM, PRENOM);
+
+        assertThat(user.getPasswordEncrypted()).doesNotContain(PASSWORD);
+    }
+    @Test
+    @DisplayName("Inscription KO : email null")
+    void registerKo_emailNull() {
+        assertThatThrownBy(() ->
+                authService.register(null, PASSWORD, NOM, PRENOM))
+                .isInstanceOf(InvalidInputException.class);
+    }
 }

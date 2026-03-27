@@ -30,7 +30,7 @@ public class CryptoService {
 
     // 128 bits = taille maximale du Tag GCM (le plus sécurisé)
     private static final int TAG_SIZE = 128;
-
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     // Chiffrement AES-GCM
     /**
      * Chiffre un texte avec AES-256-GCM.
@@ -44,7 +44,7 @@ public class CryptoService {
     public String encrypt(String plainText) throws Exception {
         // Générer IV aléatoire
         byte[] iv = new byte[IV_SIZE];
-        new SecureRandom().nextBytes(iv);
+        SECURE_RANDOM.nextBytes(iv);
 
         // Chiffrer
         SecretKeySpec key = buildKey();
