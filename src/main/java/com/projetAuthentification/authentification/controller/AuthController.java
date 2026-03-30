@@ -4,7 +4,7 @@ import com.projetAuthentification.authentification.dto.LoginRequest;
 import com.projetAuthentification.authentification.entity.User;
 import com.projetAuthentification.authentification.service.AuthService;
 import org.springframework.web.bind.annotation.*;
-
+import com.projetAuthentification.authentification.dto.ChangePasswordRequest;
 import java.util.Map;
 
 /**
@@ -72,5 +72,31 @@ public class AuthController {
     public Map<String, String> me(@RequestHeader("Authorization") String token) {
         User user = authService.getUserFromToken(token);
         return Map.of(EMAIL_KEY, user.getEmail());
+    }
+
+    /**
+     * PUT /api/auth/change-password
+     * Body JSON :
+     * {
+     *   "email": "toto@example.com",
+     *   "oldPassword": "pwd1234",
+     *   "newPassword": "NewPassword123!",
+     *   "confirmPassword": "NewPassword123!"
+     * }
+     *
+     * @return message de succès
+     */
+    @PutMapping("/auth/change-password")
+    public Map<String, String> changePassword(
+            @RequestBody ChangePasswordRequest request) {
+
+        authService.changePassword(
+                request.getEmail(),
+                request.getOldPassword(),
+                request.getNewPassword(),
+                request.getConfirmPassword()
+        );
+
+        return Map.of("message", "Mot de passe change avec succes");
     }
 }

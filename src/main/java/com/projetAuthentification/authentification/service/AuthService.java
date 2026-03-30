@@ -282,4 +282,69 @@ public class AuthService {
         authNonceRepository.deleteByExpiresAtBefore(LocalDateTime.now());
         logger.debug("Nettoyage des nonces expires effectue");
     }
+    /**
+     * Change le mot de passe d'un utilisateur authentifié.
+     *
+     * Étapes :
+     * 1. Vérifier que l'utilisateur existe
+     * 2. Vérifier que l'ancien mot de passe est correct
+     * 3. Vérifier que newPassword et confirmPassword sont identiques
+     * 4. Vérifier la force du nouveau mot de passe
+     * 5. Chiffrer le nouveau mot de passe avec la Master Key
+     * 6. Mettre à jour la base de données
+     *
+     * @param email           email de l'utilisateur
+     * @param oldPassword     ancien mot de passe en clair
+     * @param newPassword     nouveau mot de passe en clair
+     * @param confirmPassword confirmation du nouveau mot de passe
+     */
+    public void changePassword(String email, String oldPassword,
+                               String newPassword, String confirmPassword) {
+
+        // Étape 1 : Vérifier que l'utilisateur existe
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    logger.warn("Changement mdp echoue : utilisateur inconnu {}", email);
+                    return new AuthenticationFailedException("Utilisateur introuvable");
+                });
+
+        // Étape 2 : Vérifier que l'ancien mot de passe est correct
+        // On déchiffre le mot de passe stocké et on le compare
+        String ancienMotDePasseClair;
+        try {
+            ancienMotDePasseClair = cryptoService.decrypt(user.getPasswordEncrypted());
+        } catch (Exception e) {
+            logger.error("Erreur dechiffrement pour {}", email, e);
+            throw new AuthenticationFailedException("Erreur interne");
+        }
+
+        if (!ancienMotDePasseClair.equals(oldPassword)) {
+            logger.warn("Changement mdp echoue : ancien mot de passe incorrect pour {}", email);
+            throw new AuthenticationFailedException("Ancien mot de passe incorrect");
+        }
+
+        // Étape 3 : Vérifier que newPassword et confirmPassword sont identiques
+        if (!newPassword.equals(confirmPassword)) {
+            throw new InvalidInputException("Les mots de passe ne correspondent pas");
+        }
+
+        // Étape 4 : Vérifier la force du nouveau mot de passe
+        if (!PasswordPolicyValidator.isValid(newPassword)) {
+            throw new InvalidInputException(
+                    "Nouveau mot de passe trop faible : 12 caracteres min, " +
+                            "1 maj, 1 min, 1 chiffre, 1 special");
+        }
+
+        // Étape 5 : Chiffrer le nouveau mot de passe avec la Master Key
+        try {
+            String nouveauChiffre = cryptoService.encrypt(newPassword);
+            // Étape 6 : Mettre à jour la base de données
+            user.setPasswordEncrypted(nouveauChiffre);
+            userRepository.save(user);
+            logger.info("Mot de passe change avec succes pour {}", email);
+        } catch (Exception e) {
+            logger.error("Erreur chiffrement nouveau mdp pour {}", email, e);
+            throw new RuntimeException("Erreur interne lors du changement de mot de passe");
+        }
+    }
 }
