@@ -87,8 +87,7 @@ public class AuthController {
      * @return message de succès
      */
     @PutMapping("/auth/change-password")
-    public Map<String, String> changePassword(
-            @RequestBody ChangePasswordRequest request) {
+    public Map<String, String> changePassword(@RequestBody ChangePasswordRequest request) {
 
         authService.changePassword(
                 request.getEmail(),

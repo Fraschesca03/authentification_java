@@ -314,12 +314,12 @@ public class AuthService {
         try {
             ancienMotDePasseClair = cryptoService.decrypt(user.getPasswordEncrypted());
         } catch (Exception e) {
-            logger.error("Erreur dechiffrement pour {}", email, e);
+            logger.error("Erreur dechiffrement", e);
             throw new AuthenticationFailedException("Erreur interne");
         }
 
         if (!ancienMotDePasseClair.equals(oldPassword)) {
-            logger.warn("Changement mdp echoue : ancien mot de passe incorrect pour {}", email);
+            logger.warn("Changement mdp echoue : ancien mot de passe incorrect ");
             throw new AuthenticationFailedException("Ancien mot de passe incorrect");
         }
 
@@ -341,9 +341,9 @@ public class AuthService {
             // Étape 6 : Mettre à jour la base de données
             user.setPasswordEncrypted(nouveauChiffre);
             userRepository.save(user);
-            logger.info("Mot de passe change avec succes pour {}", email);
+            logger.info("Mot de passe change avec succes ");
         } catch (Exception e) {
-            logger.error("Erreur chiffrement nouveau mdp pour {}", email, e);
+            logger.error("Erreur chiffrement nouveau mdp", e);
             throw new RuntimeException("Erreur interne lors du changement de mot de passe");
         }
     }

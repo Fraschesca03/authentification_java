@@ -496,4 +496,55 @@ class AuthServiceTest {
         assertThat(req.getTimestamp()).isEqualTo(1711234567L);
         assertThat(req.getHmac()).isEqualTo("hmacValue");
     }
+    @Test
+    @DisplayName("Decrypt KO : format invalide")
+    void decrypt_formatInvalide() {
+        CryptoService crypto = new CryptoService();
+        ReflectionTestUtils.setField(crypto, "masterKey",
+                "UneCleSuperSecreteDeMinimum32Car!!");
+
+        assertThatThrownBy(() -> crypto.decrypt("mauvais_format"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Format");
+    }
+    @Test
+    @DisplayName("HMAC : calcul correct")
+    void computeHmac_ok() throws Exception {
+        CryptoService crypto = new CryptoService();
+
+        String result = crypto.computeHmac("secret", "message");
+
+        assertThat(result).isNotNull();
+        assertThat(result).isNotBlank();
+    }
+    @Test
+    @DisplayName("Comparaison HMAC : true si identique")
+    void compareHmac_true() {
+        CryptoService crypto = new CryptoService();
+
+        boolean result = crypto.compareHmacConstantTime("abc", "abc");
+
+        assertThat(result).isTrue();
+    }
+    @Test
+    @DisplayName("Comparaison HMAC : false si différent")
+    void compareHmac_false() {
+        CryptoService crypto = new CryptoService();
+
+        boolean result = crypto.compareHmacConstantTime("abc", "xyz");
+
+        assertThat(result).isFalse();
+    }
+    @Test
+    @DisplayName("Encrypt : format v1 correct")
+    void encrypt_format() throws Exception {
+        CryptoService crypto = new CryptoService();
+        ReflectionTestUtils.setField(crypto, "masterKey",
+                "UneCleSuperSecreteDeMinimum32Car!!");
+
+        String encrypted = crypto.encrypt("hello");
+
+        assertThat(encrypted).startsWith("v1:");
+        assertThat(encrypted.split(":")).hasSize(3);
+    }
 }

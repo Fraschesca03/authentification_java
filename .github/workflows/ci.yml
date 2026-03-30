@@ -1,4 +1,4 @@
-name: CI Pipeline TP4
+name: CI Build Test Sonar Docker
 
 on:
   push:
@@ -7,40 +7,51 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # Étape 1 : Télécharger le code
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 17
+      # Étape 2 : Installer Java 17
+      - name: Install JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          distribution: temurin
+          java-version: 17
 
+      # Étape 3 : Cache Maven
       - name: Cache Maven
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
-      - name: Build and test
+      # Étape 4 : Compiler le projet
+      - name: Build project
         env:
           APP_MASTER_KEY: test_master_key_for_ci_only_32chars!
-        run: mvn clean verify
+        run: mvn clean package
 
+      # Étape 5 : Exécuter les tests
+      - name: Run tests
+        env:
+          APP_MASTER_KEY: test_master_key_for_ci_only_32chars!
+        run: mvn test
+
+      # Étape 6 : Analyse SonarCloud
       - name: SonarCloud analysis
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
-          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
-        run: |
-          mvn sonar:sonar \
-            -Dsonar.projectKey=$SONAR_PROJECT_KEY \
-            -Dsonar.organization=$SONAR_ORGANIZATION \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.qualitygate.wait=true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
+          APP_MASTER_KEY: test_master_key_for_ci_only_32chars!
+        run: mvn sonar:sonar -Dsonar.qualitygate.wait=true
+
+      # Étape 7 : Construire l'image Docker
+      - name: Build Docker image
+        run: docker build -t cdwfs-auth-app .
