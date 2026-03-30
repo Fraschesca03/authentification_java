@@ -38,6 +38,13 @@
 		<sonar.organization>fraschesca03</sonar.organization>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<sonar.coverage.exclusions>
+			**/entity/**,
+			**/exception/**,
+			**/dto/**,
+			**/*Application.java,
+			**/config/SecurityConfig.java
+		</sonar.coverage.exclusions>
 	</properties>
 	<dependencies>
 		<dependency>
