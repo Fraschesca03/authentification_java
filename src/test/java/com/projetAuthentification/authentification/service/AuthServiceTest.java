@@ -1,5 +1,6 @@
 package com.projetAuthentification.authentification.service;
 
+import com.projetAuthentification.authentification.dto.LoginRequest;
 import com.projetAuthentification.authentification.entity.AuthNonce;
 import com.projetAuthentification.authentification.entity.User;
 import com.projetAuthentification.authentification.exception.AuthenticationFailedException;
@@ -480,5 +481,19 @@ class AuthServiceTest {
         authService.cleanExpiredNonces();
         verify(authNonceRepository, times(1))
                 .deleteByExpiresAtBefore(any(LocalDateTime.class));
+    }
+    @Test
+    @DisplayName("LoginRequest : getters et setters fonctionnent")
+    void loginRequest_gettersSetters() {
+        LoginRequest req = new LoginRequest();
+        req.setEmail("alice@test.com");
+        req.setNonce("uuid-123");
+        req.setTimestamp(1711234567L);
+        req.setHmac("hmacValue");
+
+        assertThat(req.getEmail()).isEqualTo("alice@test.com");
+        assertThat(req.getNonce()).isEqualTo("uuid-123");
+        assertThat(req.getTimestamp()).isEqualTo(1711234567L);
+        assertThat(req.getHmac()).isEqualTo("hmacValue");
     }
 }
