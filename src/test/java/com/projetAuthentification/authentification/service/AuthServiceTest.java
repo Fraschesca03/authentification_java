@@ -446,4 +446,39 @@ class AuthServiceTest {
                 authService.register(null, PASSWORD, NOM, PRENOM))
                 .isInstanceOf(InvalidInputException.class);
     }
+    @Test
+    @DisplayName("Login KO : erreur lors du dechiffrement")
+    void loginKo_erreurDechiffrement() throws Exception {
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(userValide));
+        when(authNonceRepository.findByUserAndNonce(any(), any()))
+                .thenReturn(Optional.empty());
+        // Simuler une exception pendant le déchiffrement
+        when(cryptoService.decrypt(any())).thenThrow(new Exception("Erreur AES"));
+
+        assertThatThrownBy(() ->
+                authService.login(EMAIL, nonceValide, timestampValide, "sig"))
+                .isInstanceOf(AuthenticationFailedException.class);
+    }
+
+    @Test
+    @DisplayName("Login KO : erreur lors du calcul HMAC")
+    void loginKo_erreurHmac() throws Exception {
+        when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(userValide));
+        when(authNonceRepository.findByUserAndNonce(any(), any()))
+                .thenReturn(Optional.empty());
+        when(cryptoService.decrypt(any())).thenReturn(PASSWORD);
+        // Simuler une exception pendant le calcul HMAC
+        when(cryptoService.computeHmac(any(), any())).thenThrow(new Exception("Erreur HMAC"));
+
+        assertThatThrownBy(() ->
+                authService.login(EMAIL, nonceValide, timestampValide, "sig"))
+                .isInstanceOf(AuthenticationFailedException.class);
+    }
+    @Test
+    @DisplayName("Scheduler : nettoyage des nonces expires")
+    void cleanExpiredNonces_appelleRepository() {
+        authService.cleanExpiredNonces();
+        verify(authNonceRepository, times(1))
+                .deleteByExpiresAtBefore(any(LocalDateTime.class));
+    }
 }
