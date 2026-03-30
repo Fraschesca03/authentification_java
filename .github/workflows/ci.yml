@@ -11,47 +11,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Étape 1 : Télécharger le code
+      # 1. Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Étape 2 : Installer Java 17
-      - name: Install JDK
+      # 2. Setup Java 17
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      # Étape 3 : Cache Maven
-      - name: Cache Maven
+      # 3. Cache Maven
+      - name: Cache Maven dependencies
         uses: actions/cache@v3
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      # Étape 4 : Compiler le projet
-      - name: Build project
+      # 4. Build + tests + coverage
+      - name: Build and test project
         env:
           APP_MASTER_KEY: test_master_key_for_ci_only_32chars!
-        run: mvn clean package
+        run: mvn clean verify
 
-      # Étape 5 : Exécuter les tests
-      - name: Run tests
-        env:
-          APP_MASTER_KEY: test_master_key_for_ci_only_32chars!
-        run: mvn test
-
-      # Étape 6 : Analyse SonarCloud
+      # 5. SonarCloud analysis 
       - name: SonarCloud analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           APP_MASTER_KEY: test_master_key_for_ci_only_32chars!
-        run: mvn sonar:sonar -Dsonar.qualitygate.wait=true
+        run: |
+          mvn sonar:sonar \
+            -Dsonar.projectKey=authentification \
+            -Dsonar.organization=fraschesca03 \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.qualitygate.wait=true
 
-      # Étape 7 : Construire l'image Docker
+      # 6. Build Docker image
       - name: Build Docker image
         run: docker build -t cdwfs-auth-app .
