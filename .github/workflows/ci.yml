@@ -45,10 +45,11 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           mvn sonar:sonar \
-            -Dsonar.projectKey=fraschesca03_authentification_java \
+            -Dsonar.projectKey=Fraschesca03_authentification_java \
             -Dsonar.organization=fraschesca03 \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.branch.name=main \
             -Dsonar.qualitygate.wait=true
       # 6. Build Docker image
       - name: Build Docker image
