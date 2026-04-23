@@ -1,33 +1,63 @@
-version: '3.8'
-
 services:
 
   mysql:
-    image: mysql:8
-    container_name: mysql-db
-    restart: always
+    image: mysql:8.0
+    container_name: auth-mysql
+    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_DATABASE: auth_bdd
+      MYSQL_USER: auth_user
+      MYSQL_PASSWORD: ${DB_PASSWORD:-auth_pass}
     ports:
-      - "3306:3306"
+      - "3307:3306"  # 3307 sur l'hôte pour ne pas conflitter avec SkillHub en 3306
+    volumes:
+      - auth-mysql-data:/var/lib/mysql
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 30s
+    networks:
+      - auth-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
 
-  app:
-    build: .
-    container_name: auth-app
-    restart: always
+  auth-service:
+    build:
+      context: .
+      target: runtime
+    image: skillhub-auth:latest
+    container_name: skillhub-auth
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/auth_bdd?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: auth_user
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-auth_pass}
+      APP_MASTER_KEY: ${APP_MASTER_KEY}
+      JWT_SECRET: ${JWT_SECRET}
     ports:
       - "8080:8080"
     depends_on:
       mysql:
         condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/auth_bdd?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      APP_MASTER_KEY: test_master_key_cdwfs-auth-app_docker!!
+    networks:
+      - auth-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+
+volumes:
+  auth-mysql-data:
+    name: auth-mysql-data
+
+networks:
+  auth-network:
+    name: auth-network
+    driver: bridge
