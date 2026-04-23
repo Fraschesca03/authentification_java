@@ -27,15 +27,16 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                {
-                  "nom": "Dupont",
-                  "prenom": "Alice",
-                  "email": "alice.controller@test.com",
-                  "password": "MonMotDePasse123!"
-                }
-                """))
+            {
+              "nom": "Dupont",
+              "role": "apprenant",
+              "email": "alice.controller@test.com",
+              "password": "MonMotDePasse123!"
+            }
+            """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("alice.controller@test.com"));
+                .andExpect(jsonPath("$.user.email").value("alice.controller@test.com"))
+                .andExpect(jsonPath("$.token").exists());
     }
 
     @Test
@@ -45,26 +46,26 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                {
-                  "nom": "Dupont",
-                  "prenom": "Bob",
-                  "email": "bob.double@test.com",
-                  "password": "MonMotDePasse123!"
-                }
-                """))
+            {
+              "nom": "Dupont",
+              "role": "apprenant",
+              "email": "bob.double@test.com",
+              "password": "MonMotDePasse123!"
+            }
+            """))
                 .andExpect(status().isOk());
 
         // Deuxième enregistrement avec le même email → 409
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                {
-                  "nom": "Dupont",
-                  "prenom": "Bob",
-                  "email": "bob.double@test.com",
-                  "password": "MonMotDePasse123!"
-                }
-                """))
+            {
+              "nom": "Dupont",
+              "role": "apprenant",
+              "email": "bob.double@test.com",
+              "password": "MonMotDePasse123!"
+            }
+            """))
                 .andExpect(status().isConflict());
     }
 

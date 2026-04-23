@@ -59,6 +59,7 @@ public class AuthService {
     private final UserRepository      userRepository;
     private final AuthNonceRepository authNonceRepository;
     private final CryptoService       cryptoService;
+    private final JwtService          jwtService;
 
     // Stocke en memoire les tokens actifs : token UUID -> email
     // ConcurrentHashMap est thread-safe (plusieurs requetes simultanees)
@@ -77,32 +78,29 @@ public class AuthService {
 
     public AuthService(UserRepository userRepository,
                        AuthNonceRepository authNonceRepository,
-                       CryptoService cryptoService) {
+                       CryptoService cryptoService,
+                       JwtService jwtService) {
         this.userRepository      = userRepository;
         this.authNonceRepository = authNonceRepository;
         this.cryptoService       = cryptoService;
+        this.jwtService          = jwtService;
     }
 
     // ── INSCRIPTION ──────────────────────────────────────────────────────────
 
     /**
-     * Inscrit un nouvel utilisateur.
+     * Inscrit un nouvel utilisateur avec un rôle (apprenant ou formateur).
      *
-     * Changement TP3 vs TP2 :
-     *   TP2 : passwordEncoder.encode(password) = BCrypt (non reversible)
-     *   TP3 : cryptoService.encrypt(password)  = AES (reversible avec SMK)
-     *
-     * Pourquoi ce changement ?
-     * Le protocole HMAC necessite que le serveur retrouve le mot de passe
-     * en clair pour recalculer la signature. BCrypt rend ca impossible.
+     * Le mot de passe est chiffré AES-GCM avec la Master Key (TP4)
+     * pour permettre le protocole HMAC (TP3) au login.
      *
      * @param email    email de l'utilisateur
-     * @param password mot de passe en clair (sera chiffre AES avant stockage)
-     * @param nom      nom de famille
-     * @param prenom   prenom
-     * @return l'utilisateur cree
+     * @param password mot de passe en clair (sera chiffré avant stockage)
+     * @param nom      nom complet
+     * @param role     "apprenant" ou "formateur" (défaut: apprenant)
+     * @return l'utilisateur créé
      */
-    public User register(String email, String password, String nom, String prenom) {
+    public User register(String email, String password, String nom, String role) {
         if (email == null || email.isBlank()) {
             logger.warn("Inscription echouee : email vide");
             throw new InvalidInputException("Email vide");
@@ -110,8 +108,11 @@ public class AuthService {
         if (nom == null || nom.isBlank()) {
             throw new InvalidInputException("Nom vide");
         }
-        if (prenom == null || prenom.isBlank()) {
-            throw new InvalidInputException("Prenom vide");
+        if (role == null || role.isBlank()) {
+            role = "apprenant";
+        }
+        if (!role.equals("apprenant") && !role.equals("formateur")) {
+            throw new InvalidInputException("Role invalide (apprenant ou formateur)");
         }
         if (!PasswordPolicyValidator.isValid(password)) {
             throw new InvalidInputException(
@@ -127,10 +128,8 @@ public class AuthService {
             User user = new User();
             user.setEmail(email);
             user.setNom(nom);
-            user.setPrenom(prenom);
-            // CHANGEMENT TP3 : encrypt() au lieu de BCrypt encode()
-            // encrypt() chiffre le mot de passe avec AES + SMK
-            // Le resultat est une String Base64 stockee en base
+            user.setRole(role);
+            // Chiffrement AES-GCM TP4 (conservé)
             user.setPasswordEncrypted(cryptoService.encrypt(password));
             userRepository.save(user);
             logger.info("Inscription reussie");
@@ -230,13 +229,16 @@ public class AuthService {
         authNonce.setConsumed(true);
         authNonceRepository.save(authNonce);
 
-        // Etape 7 : Emettre l'access token
-        // UUID aleatoire comme token — imprévisible et unique
-        String accessToken = UUID.randomUUID().toString();
+        // Etape 7 : Emettre le JWT HS256 (compatible Laravel)
+        // La signature utilise le JWT_SECRET partagé avec Laravel
+        // Laravel peut vérifier ce token sans appeler Spring Boot
+        String accessToken = jwtService.emit(
+                user.getId(),
+                user.getEmail(),
+                user.getRole(),
+                user.getNom()
+        );
         LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(tokenTtl);
-
-        // On stocke en memoire : token -> email (pour /api/me)
-        tokenStore.put(accessToken, email);
 
         logger.info("Connexion reussie");
 
@@ -255,14 +257,25 @@ public class AuthService {
      * @return l'utilisateur correspondant
      */
     public User getUserFromToken(String token) {
-        String email = tokenStore.get(token);
-        if (email == null) {
+        // Support "Bearer <token>" comme "Authorization" standard
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        String email;
+        try {
+            io.jsonwebtoken.Claims claims = jwtService.parse(token);
+            email = claims.get("email", String.class);
+            if (email == null) {
+                throw new AuthenticationFailedException("Token invalide");
+            }
+        } catch (Exception e) {
             throw new AuthenticationFailedException("Token invalide ou expire");
         }
+
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new AuthenticationFailedException("Utilisateur introuvable"));
     }
-
     // NETTOYAGE AUTOMATIQUE DES NONCES EXPIRES
     /**
      * Supprime automatiquement les nonces expires de la base.

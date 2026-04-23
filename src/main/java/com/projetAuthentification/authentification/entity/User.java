@@ -4,25 +4,13 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * <h2>Entité User</h2>
+ * Entité User — alignée sur le modèle Laravel SkillHub.
  *
- * Représente un utilisateur dans le système.
+ * IMPORTANT : cette entité partage la MÊME table users que Laravel.
+ * Les champs correspondent à la migration Laravel create_users_table.
  *
- * <h3>Changement TP3 vs TP2 :</h3>
- * Dans le TP2, le mot de passe était stocké avec BCrypt (hash non réversible).
- * BCrypt est excellent pour la sécurité MAIS le serveur ne peut plus retrouver
- * le mot de passe en clair — ce qui est impossible avec le protocole HMAC.
- *
- * Dans le TP3, on passe à un chiffrement AES RÉVERSIBLE :
- *   - Le mot de passe est chiffré avec la Server Master Key (SMK)
- *   - Le serveur peut le déchiffrer quand il a besoin de recalculer le HMAC
- *   - Le champ s'appelle maintenant "password_encrypted" en base
- *
- * <h3>Avertissement pédagogique :</h3>
- * Stocker un mot de passe réversible est un compromis accepté ici
- * UNIQUEMENT pour apprendre le protocole HMAC. En production réelle,
- * on utiliserait des protocoles comme SRP (Secure Remote Password)
- * qui évitent complètement ce problème.
+ * Le champ `password` contient le mot de passe chiffré AES-GCM (réversible)
+ * pour permettre le protocole HMAC de login du TP3.
  */
 @Entity
 @Table(name = "users")
@@ -32,36 +20,40 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Email unique — sert d'identifiant de connexion
     @Column(unique = true, nullable = false)
     private String email;
 
-    // ── CHANGEMENT TP3 ───────────────────────────────────────────────────────
-    // Avant (TP2) : private String passwordHash;
-    //   → BCrypt, non réversible, impossible de retrouver le mot de passe
-    // Maintenant (TP3) : private String passwordEncrypted;
-    //   → AES chiffré avec la SMK, réversible via CryptoService.decrypt()
-    //   → Nécessaire pour que le serveur puisse recalculer le HMAC
-    @Column(name = "password_encrypted", nullable = false)
-    private String passwordEncrypted;
+    // Colonne "password" pour être compatible avec le schéma Laravel
+    // Contient le chiffré AES-GCM (TP4), pas le plain text
+    @Column(nullable = false, length = 500)
+    private String password;
 
-    // Nom de l'utilisateur (ajouté en TP2)
     @Column(nullable = false)
     private String nom;
 
-    // Prénom de l'utilisateur (ajouté en TP2)
+    // Rôle : "apprenant" ou "formateur"
     @Column(nullable = false)
-    private String prenom;
+    private String role = "apprenant";
 
-    // Compteur de tentatives de connexion échouées (protection brute-force TP2)
-    @Column(nullable = false)
+    // Champs optionnels présents côté Laravel
+    @Column(nullable = true)
+    private String photo;
+
+    @Column(nullable = true, columnDefinition = "TEXT")
+    private String bio;
+
+    // Protection brute-force (TP2 — conservé)
+    @Column(name = "failed_attempts", nullable = false)
     private int failedAttempts = 0;
 
-    // Date/heure jusqu'à laquelle le compte est verrouillé (protection TP2)
+    @Column(name = "lock_until")
     private LocalDateTime lockUntil;
 
-    // Date de création du compte
+    @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     // ── Getters et Setters ───────────────────────────────────────────────────
 
@@ -72,29 +64,37 @@ public class User {
     public void setEmail(String email) { this.email = email; }
 
     /**
-     * Retourne le mot de passe chiffré AES stocké en base.
-     * Ce n'est PAS le mot de passe en clair.
-     * Pour obtenir le mot de passe en clair, utiliser CryptoService.decrypt()
+     * Retourne le mot de passe chiffré AES-GCM (pas le plain text).
+     * Utiliser CryptoService.decrypt() pour obtenir le plain text.
      */
-    public String getPasswordEncrypted() { return passwordEncrypted; }
-    public void setPasswordEncrypted(String passwordEncrypted) {
-        this.passwordEncrypted = passwordEncrypted;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
+    // Alias pour compatibilité avec le code existant qui utilise getPasswordEncrypted
+    public String getPasswordEncrypted() { return password; }
+    public void setPasswordEncrypted(String value) { this.password = value; }
 
     public String getNom() { return nom; }
     public void setNom(String nom) { this.nom = nom; }
 
-    public String getPrenom() { return prenom; }
-    public void setPrenom(String prenom) { this.prenom = prenom; }
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+
+    public String getPhoto() { return photo; }
+    public void setPhoto(String photo) { this.photo = photo; }
+
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
 
     public int getFailedAttempts() { return failedAttempts; }
-    public void setFailedAttempts(int failedAttempts) {
-        this.failedAttempts = failedAttempts;
-    }
+    public void setFailedAttempts(int v) { this.failedAttempts = v; }
 
     public LocalDateTime getLockUntil() { return lockUntil; }
-    public void setLockUntil(LocalDateTime lockUntil) { this.lockUntil = lockUntil; }
+    public void setLockUntil(LocalDateTime v) { this.lockUntil = v; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setCreatedAt(LocalDateTime v) { this.createdAt = v; }
+
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime v) { this.updatedAt = v; }
 }

@@ -25,22 +25,40 @@ public class AuthController {
     private static final String PASSWORD_KEY = "password";
 
     private final AuthService authService;
+    private final com.projetAuthentification.authentification.service.JwtService jwtService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService,
+                          com.projetAuthentification.authentification.service.JwtService jwtService) {
         this.authService = authService;
+        this.jwtService = jwtService;
     }
-
     /**
      * POST /api/auth/register
-     * Body : { "nom":"...", "prenom":"...", "email":"...", "password":"..." }
+     * Body : { "email":"...", "password":"...", "nom":"...", "role":"apprenant|formateur" }
+     *
+     * Retourne l'utilisateur créé ET un JWT directement utilisable
+     * (permet au front d'enchaîner register → pages authentifiées sans re-login).
      */
     @PostMapping("/auth/register")
-    public User register(@RequestBody Map<String, String> body) {
+    public Map<String, Object> register(@RequestBody Map<String, String> body) {
         String email    = body.get(EMAIL_KEY);
         String password = body.get(PASSWORD_KEY);
         String nom      = body.get("nom");
-        String prenom   = body.get("prenom");
-        return authService.register(email, password, nom, prenom);
+        String role     = body.getOrDefault("role", "apprenant");
+
+        User user = authService.register(email, password, nom, role);
+        String token = jwtService.emit(user.getId(), user.getEmail(), user.getRole(), user.getNom());
+
+        return Map.of(
+                "message", "Utilisateur cree avec succes",
+                "user", Map.of(
+                        "id", user.getId(),
+                        "email", user.getEmail(),
+                        "nom", user.getNom(),
+                        "role", user.getRole()
+                ),
+                "token", token
+        );
     }
 
     /**

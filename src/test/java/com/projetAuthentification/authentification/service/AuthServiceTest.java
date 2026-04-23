@@ -8,6 +8,7 @@ import com.projetAuthentification.authentification.exception.InvalidInputExcepti
 import com.projetAuthentification.authentification.exception.ResourceConflictException;
 import com.projetAuthentification.authentification.repository.AuthNonceRepository;
 import com.projetAuthentification.authentification.repository.UserRepository;
+import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,6 +46,7 @@ class AuthServiceTest {
     @Mock private UserRepository      userRepository;
     @Mock private AuthNonceRepository authNonceRepository;
     @Mock private CryptoService       cryptoService;
+    @Mock private JwtService          jwtService;
 
     // Le vrai AuthService avec les mocks injectés
     @InjectMocks
@@ -53,8 +55,8 @@ class AuthServiceTest {
     // ── Données communes à tous les tests ────────────────────────────────────
     private static final String EMAIL    = "alice@gmail.com";
     private static final String PASSWORD = "MonMotDePasse123!";
-    private static final String NOM      = "Dupont";
-    private static final String PRENOM   = "Alice";
+    private static final String NOM      = "MonNom";
+    private static final String ROLE     = "apprenant";
 
     private User userValide;
     private long timestampValide;
@@ -71,7 +73,7 @@ class AuthServiceTest {
         userValide.setEmail(EMAIL);
         userValide.setPasswordEncrypted("motDePasseChiffre==");
         userValide.setNom(NOM);
-        userValide.setPrenom(PRENOM);
+        userValide.setRole(ROLE);
 
         // Timestamp actuel — valide car dans la fenêtre ±60s
         timestampValide = Instant.now().getEpochSecond();
@@ -111,6 +113,9 @@ class AuthServiceTest {
         // La comparaison en temps constant retourne true (signatures identiques)
         when(cryptoService.compareHmacConstantTime("signatureValide", "signatureValide"))
                 .thenReturn(true);
+        // Le service JWT emet un token
+        when(jwtService.emit(any(), anyString(), anyString(), any()))
+                .thenReturn("jwt.token.fake");
 
         // ACT (exécuter)
         Map<String, String> result = authService.login(
@@ -237,6 +242,8 @@ class AuthServiceTest {
         when(cryptoService.decrypt(any())).thenReturn(PASSWORD);
         when(cryptoService.computeHmac(any(), any())).thenReturn("sig");
         when(cryptoService.compareHmacConstantTime("sig", "sig")).thenReturn(true);
+        when(jwtService.emit(any(), anyString(), anyString(), any()))
+                .thenReturn("jwt.token.fake");
 
         // ACT
         authService.login(EMAIL, nonceValide, timestampValide, "sig");
@@ -260,6 +267,13 @@ class AuthServiceTest {
         when(cryptoService.decrypt(any())).thenReturn(PASSWORD);
         when(cryptoService.computeHmac(any(), any())).thenReturn("sig");
         when(cryptoService.compareHmacConstantTime(any(), any())).thenReturn(true);
+        when(jwtService.emit(any(), anyString(), anyString(), any()))
+                .thenReturn("jwt.token.fake");
+
+        // Le parse() du JWT retourne des claims contenant l'email
+        Claims claims = mock(Claims.class);
+        when(claims.get("email", String.class)).thenReturn(EMAIL);
+        when(jwtService.parse("jwt.token.fake")).thenReturn(claims);
 
         // ACT 1 : se connecter et récupérer le token
         Map<String, String> loginResult =
@@ -305,13 +319,14 @@ class AuthServiceTest {
         when(userRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
         // ACT
-        User result = authService.register(EMAIL, PASSWORD, NOM, PRENOM);
+        // ACT
+        User result = authService.register(EMAIL, PASSWORD, NOM, ROLE);
 
-        // ASSERT
+// ASSERT
         assertThat(result.getEmail()).isEqualTo(EMAIL);
         assertThat(result.getNom()).isEqualTo(NOM);
-        assertThat(result.getPrenom()).isEqualTo(PRENOM);
-        // Le mot de passe chiffré est stocké, pas le mot de passe en clair
+        assertThat(result.getRole()).isEqualTo(ROLE);
+// Le mot de passe chiffré est stocké, pas le mot de passe en clair
         assertThat(result.getPasswordEncrypted()).isEqualTo("motDePasseChiffre==");
     }
 
@@ -326,7 +341,7 @@ class AuthServiceTest {
 
         // ACT & ASSERT
         assertThatThrownBy(() ->
-                authService.register(EMAIL, PASSWORD, NOM, PRENOM))
+                authService.register(EMAIL, PASSWORD, NOM, "apprenant"))
                 .isInstanceOf(ResourceConflictException.class);
     }
 
@@ -337,7 +352,7 @@ class AuthServiceTest {
     @DisplayName("Inscription KO : email vide")
     void registerKo_emailVide() {
         assertThatThrownBy(() ->
-                authService.register("", PASSWORD, NOM, PRENOM))
+                authService.register("", PASSWORD, NOM, "apprenant"))
                 .isInstanceOf(InvalidInputException.class);
     }
 
@@ -348,18 +363,18 @@ class AuthServiceTest {
     @DisplayName("Inscription KO : nom vide")
     void registerKo_nomVide() {
         assertThatThrownBy(() ->
-                authService.register(EMAIL, PASSWORD, "", PRENOM))
+                authService.register(EMAIL, PASSWORD, "", "apprenant"))
                 .isInstanceOf(InvalidInputException.class);
     }
 
     /**
-     * Test 14 : Inscription KO prénom vide
+     * Test 14 : Inscription KO rôle invalide
      */
     @Test
-    @DisplayName("Inscription KO : prénom vide")
-    void registerKo_prenomVide() {
+    @DisplayName("Inscription KO : role invalide (ni apprenant ni formateur)")
+    void registerKo_roleInvalide() {
         assertThatThrownBy(() ->
-                authService.register(EMAIL, PASSWORD, NOM, ""))
+                authService.register(EMAIL, PASSWORD, NOM, "admin"))
                 .isInstanceOf(InvalidInputException.class);
     }
 
@@ -393,6 +408,8 @@ class AuthServiceTest {
         when(cryptoService.decrypt(any())).thenReturn(PASSWORD);
         when(cryptoService.computeHmac(any(), any())).thenReturn("sig");
         when(cryptoService.compareHmacConstantTime(any(), any())).thenReturn(true);
+        when(jwtService.emit(any(), anyString(), anyString(), any()))
+                .thenReturn("jwt.token.fake");
 
         authService.login(EMAIL, nonceValide, timestampValide, "sig");
 
@@ -411,7 +428,7 @@ class AuthServiceTest {
     @DisplayName("Token null : rejet")
     void tokenNull() {
         assertThatThrownBy(() -> authService.getUserFromToken(null))
-                .isInstanceOf(NullPointerException.class);
+                .isInstanceOf(AuthenticationFailedException.class);
     }
     @Test
     @DisplayName("Decrypt KO si masterKey invalide")
@@ -436,7 +453,7 @@ class AuthServiceTest {
         when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
         when(cryptoService.encrypt(PASSWORD)).thenReturn("encrypted");
 
-        User user = authService.register(EMAIL, PASSWORD, NOM, PRENOM);
+        User user = authService.register(EMAIL, PASSWORD, NOM, "apprenant");
 
         assertThat(user.getPasswordEncrypted()).doesNotContain(PASSWORD);
     }
@@ -444,7 +461,7 @@ class AuthServiceTest {
     @DisplayName("Inscription KO : email null")
     void registerKo_emailNull() {
         assertThatThrownBy(() ->
-                authService.register(null, PASSWORD, NOM, PRENOM))
+                authService.register(null, PASSWORD, NOM, "apprenant"))
                 .isInstanceOf(InvalidInputException.class);
     }
     @Test
