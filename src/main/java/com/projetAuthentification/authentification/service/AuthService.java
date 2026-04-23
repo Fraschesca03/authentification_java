@@ -304,7 +304,7 @@ public class AuthService {
         // Étape 1 : Vérifier que l'utilisateur existe
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> {
-                    logger.warn("Changement mdp echoue : utilisateur inconnu {}", email);
+                    logger.warn("Changement mdp echoue : utilisateur inconnu");
                     return new AuthenticationFailedException("Utilisateur introuvable");
                 });
 

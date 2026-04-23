@@ -78,10 +78,10 @@ public class AuthController {
      * PUT /api/auth/change-password
      * Body JSON :
      * {
-     *   "email": "toto@example.com",
+     *   "email": "toto@auth.com",
      *   "oldPassword": "pwd1234",
-     *   "newPassword": "NewPassword123!",
-     *   "confirmPassword": "NewPassword123!"
+     *   "newPassword": "TotoNouveauMdpd123!",
+     *   "confirmPassword": "TotoNouveauMdpd123!"
      * }
      *
      * @return message de succès
